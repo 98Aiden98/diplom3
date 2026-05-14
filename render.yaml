@@ -1,6 +1,7 @@
 services:
   - type: web
     name: infomed-api
+    plan: free
     runtime: node
     rootDir: backend
     buildCommand: npm install && npm run prisma:generate && npm run build
@@ -20,12 +21,13 @@ services:
         value: 1d
       - key: CORS_ORIGINS
         fromService:
-          type: static
+          type: web
           name: infomed-web
           envVarKey: RENDER_EXTERNAL_URL
 
-  - type: static
+  - type: web
     name: infomed-web
+    runtime: static
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
