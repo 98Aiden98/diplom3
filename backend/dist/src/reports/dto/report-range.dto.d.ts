@@ -1,0 +1,4 @@
+export declare class ReportRangeDto {
+    from?: string;
+    to?: string;
+}

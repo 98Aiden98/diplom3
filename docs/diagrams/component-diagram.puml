@@ -1,0 +1,73 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+title Диаграмма компонентов системы «ИнфоМед»
+
+package "Клиентский уровень" {
+  [React Frontend] as Frontend
+  [AppRouter\nRoleRoute\nProtectedRoute] as Routing
+  [AuthStore\nZustand Persist] as AuthStore
+  [API Layer\nAxios Clients] as ApiLayer
+  [UI / Layout / Forms] as UI
+}
+
+package "Серверный уровень" {
+  [NestJS Application] as NestApp
+  [AuthModule] as AuthModule
+  [UsersModule] as UsersModule
+  [PatientsModule] as PatientsModule
+  [DoctorsModule] as DoctorsModule
+  [SpecializationsModule] as SpecsModule
+  [ServicesModule] as ServicesModule
+  [AppointmentsModule] as AppointmentsModule
+  [SchedulesModule] as SchedulesModule
+  [MedicalRecordsModule] as RecordsModule
+  [ReportsModule] as ReportsModule
+
+  [JwtAuthGuard\nRolesGuard] as Guards
+  [ResponseInterceptor\nExceptionFilter\nValidationPipe] as Infra
+  [PrismaService] as PrismaService
+}
+
+database "SQLite" as DB
+folder "Uploads\n/ uploads / doctors" as Uploads
+component "Swagger UI\n/api/docs" as Swagger
+
+Frontend --> Routing
+Frontend --> AuthStore
+Frontend --> ApiLayer
+Frontend --> UI
+
+ApiLayer --> NestApp : HTTP / REST
+AuthStore --> ApiLayer : JWT token
+
+NestApp --> Guards
+NestApp --> Infra
+NestApp --> AuthModule
+NestApp --> UsersModule
+NestApp --> PatientsModule
+NestApp --> DoctorsModule
+NestApp --> SpecsModule
+NestApp --> ServicesModule
+NestApp --> AppointmentsModule
+NestApp --> SchedulesModule
+NestApp --> RecordsModule
+NestApp --> ReportsModule
+NestApp --> Swagger
+
+AuthModule --> PrismaService
+UsersModule --> PrismaService
+PatientsModule --> PrismaService
+DoctorsModule --> PrismaService
+SpecsModule --> PrismaService
+ServicesModule --> PrismaService
+AppointmentsModule --> PrismaService
+SchedulesModule --> PrismaService
+RecordsModule --> PrismaService
+ReportsModule --> PrismaService
+
+PrismaService --> DB
+DoctorsModule --> Uploads : фото врачей
+
+@enduml

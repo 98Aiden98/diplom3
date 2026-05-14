@@ -1,0 +1,83 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+actor "Администратор" as Admin
+actor "Регистратор" as Registrar
+actor "Врач" as Doctor
+actor "Пациент" as Patient
+
+rectangle "Информационная система\nмедицинского центра «ИнфоМед»" {
+  usecase "Войти в систему" as UC_Login
+  usecase "Зарегистрироваться" as UC_Register
+
+  usecase "Просматривать\nпоказатели" as UC_Dashboard
+  usecase "Управлять\nпользователями" as UC_Users
+  usecase "Управлять\nврачами" as UC_Doctors
+  usecase "Управлять\nспециальностями" as UC_Specializations
+  usecase "Управлять\nуслугами" as UC_Services
+  usecase "Просматривать\nвсе записи" as UC_AllAppointments
+  usecase "Формировать\nотчёты" as UC_Reports
+
+  usecase "Управлять\nпациентами" as UC_Patients
+  usecase "Искать пациента" as UC_SearchPatient
+  usecase "Просматривать\nрасписание врачей" as UC_ViewSchedule
+  usecase "Записывать пациента\nна приём" as UC_BookByRegistrar
+  usecase "Отменять или\nпереносить запись" as UC_Reschedule
+
+  usecase "Просматривать свои\nприёмы" as UC_DoctorAppointments
+  usecase "Открывать карточку\nпациента" as UC_OpenCard
+  usecase "Просматривать историю\nпосещений пациента" as UC_History
+  usecase "Создавать медицинскую\nзапись" as UC_CreateRecord
+  usecase "Завершать приём" as UC_Complete
+
+  usecase "Просматривать врачей\nи услуги" as UC_BrowseDoctors
+  usecase "Записываться\nна приём" as UC_BookByPatient
+  usecase "Просматривать свои\nзаписи" as UC_MyAppointments
+  usecase "Отменять свою\nзапись" as UC_CancelOwn
+  usecase "Просматривать историю\nи рекомендации" as UC_MyRecords
+}
+
+Admin --> UC_Login
+Admin --> UC_Dashboard
+Admin --> UC_Users
+Admin --> UC_Doctors
+Admin --> UC_Specializations
+Admin --> UC_Services
+Admin --> UC_AllAppointments
+Admin --> UC_Reports
+
+Registrar --> UC_Login
+Registrar --> UC_Dashboard
+Registrar --> UC_Patients
+Registrar --> UC_SearchPatient
+Registrar --> UC_ViewSchedule
+Registrar --> UC_BookByRegistrar
+Registrar --> UC_Reschedule
+
+Doctor --> UC_Login
+Doctor --> UC_Dashboard
+Doctor --> UC_DoctorAppointments
+Doctor --> UC_OpenCard
+Doctor --> UC_History
+Doctor --> UC_CreateRecord
+Doctor --> UC_Complete
+
+Patient --> UC_Register
+Patient --> UC_Login
+Patient --> UC_Dashboard
+Patient --> UC_BrowseDoctors
+Patient --> UC_BookByPatient
+Patient --> UC_MyAppointments
+Patient --> UC_CancelOwn
+Patient --> UC_MyRecords
+
+UC_BookByRegistrar .> UC_SearchPatient : <<include>>
+UC_BookByRegistrar .> UC_ViewSchedule : <<include>>
+UC_OpenCard .> UC_History : <<include>>
+UC_CreateRecord .> UC_Complete : <<include>>
+UC_BookByPatient .> UC_BrowseDoctors : <<include>>
+UC_CancelOwn .> UC_MyAppointments : <<extend>>
+
+@enduml

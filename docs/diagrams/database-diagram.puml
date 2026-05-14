@@ -1,0 +1,150 @@
+@startuml
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+
+title Диаграмма базы данных системы «ИнфоМед»
+
+entity "User" as User {
+  * id : Int <<PK>>
+  --
+  fullName : String
+  email : String <<UQ>>
+  passwordHash : String
+  role : Role
+  phone : String?
+  createdAt : DateTime
+  updatedAt : DateTime
+}
+
+entity "Patient" as Patient {
+  * id : Int <<PK>>
+  --
+  userId : Int? <<FK, UQ>>
+  fullName : String
+  birthDate : String
+  gender : Gender
+  phone : String
+  email : String?
+  address : String?
+  passportNumber : String?
+  policyNumber : String? <<UQ>>
+  createdAt : DateTime
+  updatedAt : DateTime
+}
+
+entity "Doctor" as Doctor {
+  * id : Int <<PK>>
+  --
+  userId : Int <<FK, UQ>>
+  fullName : String
+  specializationId : Int <<FK>>
+  phone : String
+  email : String
+  photoUrl : String?
+  cabinetNumber : String
+  experienceYears : Int
+  description : String?
+  createdAt : DateTime
+  updatedAt : DateTime
+}
+
+entity "Specialization" as Specialization {
+  * id : Int <<PK>>
+  --
+  name : String <<UQ>>
+  description : String?
+}
+
+entity "MedicalService" as MedicalService {
+  * id : Int <<PK>>
+  --
+  name : String
+  description : String?
+  price : Float
+  durationMinutes : Int
+  specializationId : Int <<FK>>
+}
+
+entity "Appointment" as Appointment {
+  * id : Int <<PK>>
+  --
+  patientId : Int <<FK>>
+  doctorId : Int <<FK>>
+  serviceId : Int <<FK>>
+  date : String
+  startTime : String
+  endTime : String
+  status : AppointmentStatus
+  reason : String?
+  comment : String?
+  createdAt : DateTime
+  updatedAt : DateTime
+}
+
+entity "DoctorSchedule" as DoctorSchedule {
+  * id : Int <<PK>>
+  --
+  doctorId : Int <<FK>>
+  dayOfWeek : Int
+  startTime : String
+  endTime : String
+  cabinetNumber : String?
+  isActive : Boolean
+}
+
+entity "MedicalRecord" as MedicalRecord {
+  * id : Int <<PK>>
+  --
+  patientId : Int <<FK>>
+  doctorId : Int <<FK>>
+  appointmentId : Int <<FK, UQ>>
+  complaints : String
+  diagnosis : String
+  treatment : String
+  recommendations : String
+  prescriptions : String?
+  createdAt : DateTime
+  updatedAt : DateTime
+}
+
+User ||--o| Patient : account
+User ||--o| Doctor : account
+
+Specialization ||--o{ Doctor : includes
+Specialization ||--o{ MedicalService : groups
+
+Patient ||--o{ Appointment : books
+Doctor ||--o{ Appointment : conducts
+MedicalService ||--o{ Appointment : selected_for
+
+Doctor ||--o{ DoctorSchedule : has
+
+Patient ||--o{ MedicalRecord : owns
+Doctor ||--o{ MedicalRecord : creates
+Appointment ||--|| MedicalRecord : results_in
+
+note bottom of User
+Role:
+- ADMIN
+- REGISTRAR
+- DOCTOR
+- PATIENT
+end note
+
+note bottom of Patient
+Gender:
+- MALE
+- FEMALE
+- OTHER
+end note
+
+note bottom of Appointment
+AppointmentStatus:
+- PLANNED
+- COMPLETED
+- CANCELLED
+- MISSED
+end note
+
+@enduml

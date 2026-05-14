@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  REGISTRAR
+  DOCTOR
+  PATIENT
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum AppointmentStatus {
+  PLANNED
+  COMPLETED
+  CANCELLED
+  MISSED
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  fullName     String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(PATIENT)
+  phone        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  patient      Patient?
+  doctor       Doctor?
+}
+
+model Patient {
+  id             Int           @id @default(autoincrement())
+  userId         Int?          @unique
+  fullName       String
+  birthDate      String
+  gender         Gender
+  phone          String
+  email          String?
+  address        String?
+  passportNumber String?
+  policyNumber   String?       @unique
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  user           User?         @relation(fields: [userId], references: [id])
+  appointments   Appointment[]
+  records        MedicalRecord[]
+}
+
+model Doctor {
+  id               Int              @id @default(autoincrement())
+  userId           Int              @unique
+  fullName         String
+  specializationId Int
+  phone            String
+  email            String
+  photoUrl         String?
+  cabinetNumber    String
+  experienceYears  Int
+  description      String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  user             User             @relation(fields: [userId], references: [id])
+  specialization   Specialization   @relation(fields: [specializationId], references: [id])
+  appointments     Appointment[]
+  schedules        DoctorSchedule[]
+  records          MedicalRecord[]
+}
+
+model Specialization {
+  id          Int              @id @default(autoincrement())
+  name        String           @unique
+  description String?
+  doctors     Doctor[]
+  services    MedicalService[]
+}
+
+model MedicalService {
+  id               Int             @id @default(autoincrement())
+  name             String
+  description      String?
+  price            Float
+  durationMinutes  Int
+  specializationId Int
+  specialization   Specialization  @relation(fields: [specializationId], references: [id])
+  appointments     Appointment[]
+
+  @@unique([name, specializationId])
+}
+
+model Appointment {
+  id            Int               @id @default(autoincrement())
+  patientId     Int
+  doctorId      Int
+  serviceId     Int
+  date          String
+  startTime     String
+  endTime       String
+  status        AppointmentStatus @default(PLANNED)
+  reason        String?
+  comment       String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  patient       Patient           @relation(fields: [patientId], references: [id])
+  doctor        Doctor            @relation(fields: [doctorId], references: [id])
+  service       MedicalService    @relation(fields: [serviceId], references: [id])
+  medicalRecord MedicalRecord?
+
+  @@index([doctorId, date])
+  @@index([patientId, date])
+}
+
+model DoctorSchedule {
+  id            Int     @id @default(autoincrement())
+  doctorId      Int
+  dayOfWeek     Int
+  startTime     String
+  endTime       String
+  cabinetNumber String?
+  isActive      Boolean @default(true)
+  doctor        Doctor  @relation(fields: [doctorId], references: [id])
+
+  @@index([doctorId, dayOfWeek])
+}
+
+model MedicalRecord {
+  id              Int         @id @default(autoincrement())
+  patientId       Int
+  doctorId        Int
+  appointmentId   Int         @unique
+  complaints      String
+  diagnosis       String
+  treatment       String
+  recommendations String
+  prescriptions   String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  patient         Patient     @relation(fields: [patientId], references: [id])
+  doctor          Doctor      @relation(fields: [doctorId], references: [id])
+  appointment     Appointment @relation(fields: [appointmentId], references: [id])
+}
