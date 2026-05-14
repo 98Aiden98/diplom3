@@ -4,8 +4,7 @@ services:
     plan: free
     runtime: node
     rootDir: backend
-    buildCommand: npm install && npm run prisma:generate && npm run build
-    preDeployCommand: npm run db:push && npm run db:seed
+    buildCommand: npm install && npm run prisma:generate && npm run build && npm run db:push && npm run db:seed
     startCommand: npm run start:prod
     healthCheckPath: /
     envVars:
